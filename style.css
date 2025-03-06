@@ -1,138 +1,316 @@
-/* 📌 全体のデザイン */
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background: #f8f8f8;
+/* 全体のスタイル */
+* {
+    box-sizing: border-box;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 100vh;
-    overflow: hidden; /* スクロールを防ぐ */
+    justify-content: flex-start;
+    padding: 10px;
+    overflow-x: hidden;
 }
 
-/* 📌 カメラ映像のコンテナ */
+.app-container {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* カメラビュー */
 .camera-container {
+    width: 100%;
     position: relative;
-    width: 90vw;
-    max-width: 600px;
-    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #000;
+    margin-bottom: 15px;
+}
+
+#camera-view {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: scaleX(1); /* ミラー効果が必要なら scaleX(-1) に変更 */
+    background-color: #222;
+    border-radius: 8px;
+    object-fit: cover;
+    aspect-ratio: 16/9; /* 横長の撮影に適したアスペクト比 */
+}
+
+/* シンプルなガイド枠 */
+.camera-container::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    height: 70%; 
+    border: 2px dashed rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ガイド枠のテキストと上方向マーカー */
+.camera-container::before {
+    content: "↑ 上方向 ↑";
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* 上方向の矢印 */
+.top-marker {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 20px solid rgba(255, 59, 48, 0.8);
+    z-index: 15;
+    pointer-events: none;
+}
+
+/* シンプル化したL字マーカー */
+.guide-corner {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-color: rgba(255, 255, 255, 0.8);
+    border-style: solid;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.top-left {
+    top: 18%;
+    left: 5%;
+    border-width: 3px 0 0 3px;
+    border-top-left-radius: 4px;
+}
+
+.top-right {
+    top: 18%;
+    right: 5%;
+    border-width: 3px 3px 0 0;
+    border-top-right-radius: 4px;
+}
+
+.bottom-left {
+    bottom: 18%;
+    left: 5%;
+    border-width: 0 0 3px 3px;
+    border-bottom-left-radius: 4px;
+}
+
+.bottom-right {
+    bottom: 18%;
+    right: 5%;
+    border-width: 0 3px 3px 0;
+    border-bottom-right-radius: 4px;
+}
+
+/* エラーメッセージ */
+#error-message {
+    display: none;
+    width: 100%;
+    background-color: #ffebee;
+    color: #d32f2f;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* 撮影ボタン */
+#capture-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px 0;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
-/* 📌 カメラ映像 */
-video {
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    border: 3px solid #ccc;
-    background: black;
-}
-
-/* 📌 枠線（ガイド） */
-#guide-frame {
-    position: absolute;
-    width: 90%;
-    height: 80%;
-    border: 4px solid rgba(255, 215, 0, 0.8); /* 黄色で視認性向上 */
-    border-radius: 10px;
-    pointer-events: none;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-}
-
-/* 📌 「上の向き」ガイド */
-#orientation-guide {
-    font-size: 16px;
-    font-weight: bold;
-    color: #ff5722;
-    margin-bottom: 10px;
-}
-
-/* 📌 ボタン共通デザイン */
-button {
+#capture-button::before {
+    content: "";
     display: block;
-    width: 80%;
-    max-width: 300px;
-    padding: 12px;
-    font-size: 18px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    margin: 10px auto;
-    transition: all 0.3s ease;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.9;
 }
 
-/* 📌 撮影ボタン */
-#capture {
-    background: #ff5722;
-    color: white;
+#capture-button:disabled {
+    background-color: #bdbdbd;
+    cursor: not-allowed;
 }
 
-#capture:hover {
-    background: #e64a19;
+#capture-button:hover:not(:disabled) {
     transform: scale(1.05);
+    background-color: #e53935;
 }
 
-/* 📌 ダウンロードボタン */
-#download {
-    background: #007bff;
-    color: white;
+#capture-button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+/* 撮影された画像のエリア */
+#captured-area {
+    display: none;
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-top: 15px;
+}
+
+#captured-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+/* ボタンエリア */
+.button-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* アクションボタン */
+.action-button {
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 250px;
     text-align: center;
     text-decoration: none;
-    display: block;
-    padding: 12px;
-    border-radius: 30px;
-    max-width: 300px;
-    font-size: 18px;
-    transition: background 0.3s ease;
 }
 
-#download:hover {
-    background: #0056b3;
+#download-link {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: none;
 }
 
-/* 📌 メディアクエリでレスポンシブ対応 */
-@media (max-width: 768px) { /* タブレット・スマホ用 */
-    .camera-container {
-        width: 100%;
+#download-link:hover {
+    background-color: #43a047;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#new-capture-button {
+    background-color: transparent;
+    color: #2196f3;
+    border: 1px solid #2196f3;
+}
+
+#new-capture-button:hover {
+    background-color: #e3f2fd;
+}
+
+/* タブレット向け調整 */
+@media (min-width: 600px) {
+    .app-container {
+        padding: 20px;
     }
     
-    #guide-frame {
-        width: 85%;
-        height: 75%;
+    #camera-view {
+        max-height: 60vh;
     }
-
-    button {
-        width: 90%;
+    
+    .button-area {
+        flex-direction: row;
+        justify-content: center;
     }
 }
 
-@media (max-width: 480px) { /* スマホ用 */
-    body {
-        padding: 10px;
+/* 横向き (ランドスケープ) モード */
+@media (orientation: landscape) {
+    .app-container {
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 15px;
     }
-
+    
     .camera-container {
-        width: 100%;
-        aspect-ratio: 4 / 3;
+        flex: 2;
+        margin-right: 15px;
+        margin-bottom: 0;
     }
-
-    #guide-frame {
-        width: 80%;
-        height: 70%;
-        border: 3px solid rgba(255, 215, 0, 0.9);
+    
+    #camera-view {
+        height: auto;
+        aspect-ratio: 16/9;
     }
-
-    #orientation-guide {
-        font-size: 14px;
+    
+    #captured-area {
+        flex: 1;
+        margin-top: 0;
     }
+    
+    .button-area {
+        margin-top: 10px;
+    }
+}
 
-    button {
-        font-size: 16px;
-        padding: 10px;
+/* iPhoneノッチ対応 */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(10px, env(safe-area-inset-left));
+        padding-right: max(10px, env(safe-area-inset-right));
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
     }
 }

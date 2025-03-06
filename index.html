@@ -2,25 +2,34 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webカメラ撮影</title>
-    <link rel="stylesheet" href="style.css"> <!-- スタイルを適用 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Webカメラアプリ</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>📸 Webカメラ撮影</h1>
-
-    <p id="orientation-guide">⬆ 上がこちらです ⬆</p> <!-- 上の向きを示すガイド -->
-
-    <div class="camera-container">
-        <video id="video" autoplay></video>
-        <div id="guide-frame"></div> <!-- 撮影の目安枠 -->
+    <div class="app-container">
+        <div class="camera-container">
+            <video id="camera-view" autoplay playsinline></video>
+            <div class="top-marker"></div>
+            <div class="guide-corner top-left"></div>
+            <div class="guide-corner top-right"></div>
+            <div class="guide-corner bottom-left"></div>
+            <div class="guide-corner bottom-right"></div>
+        </div>
+        
+        <div id="error-message"></div>
+        
+        <button id="capture-button" disabled></button>
+        
+        <div id="captured-area">
+            <img id="captured-image" alt="撮影された画像">
+            <div class="button-area">
+                <a id="download-link" class="action-button" href="#" download>画像を保存</a>
+                <button id="new-capture-button" class="action-button">新しい写真を撮る</button>
+            </div>
+        </div>
     </div>
-
-    <button id="capture">📷 撮影</button>
-    <a id="download" download="captured_image.jpg">⬇️ ダウンロード</a>
-
-    <canvas id="canvas" style="display: none;"></canvas>
-
+    
     <script src="script.js"></script>
 </body>
 </html>

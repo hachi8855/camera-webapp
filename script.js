@@ -1,37 +1,133 @@
-const video = document.getElementById('video');
-const captureBtn = document.getElementById('capture');
-const downloadBtn = document.getElementById('download');
-const canvas = document.getElementById('canvas');
+// DOM要素を取得
+const video = document.getElementById('camera-view');
+const captureButton = document.getElementById('capture-button');
+const capturedImage = document.getElementById('captured-image');
+const downloadLink = document.getElementById('download-link');
+const errorMessage = document.getElementById('error-message');
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
 
-// 📌 背面カメラを優先してカメラを起動する
-async function startCamera() {
+// メディアストリームを保持する変数
+let mediaStream = null;
+
+// カメラ初期化関数
+async function initCamera() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        // エラーメッセージを非表示に
+        errorMessage.style.display = 'none';
+        
+        // カメラ設定 - A4横向き撮影に最適化（16:9に近い解像度で高画質）
+        const constraints = {
             video: {
-                facingMode: { ideal: "environment" } // 外カメラ（背面カメラ）を優先
+                facingMode: 'environment', // リアカメラ優先
+                width: { ideal: 1920 },    // 高解像度に設定
+                height: { ideal: 1080 },
+                aspectRatio: { ideal: 16/9 } // A4横向きに最適なアスペクト比
             }
-        });
-        video.srcObject = stream;
+        };
+
+        // カメラアクセスを要求
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        // メディアストリームをビデオ要素に設定
+        video.srcObject = mediaStream;
+        
+        // iOS Safariでの問題に対応するため、読み込み完了後に再生
+        video.onloadedmetadata = function() {
+            // ビデオのサイズをキャンバスに設定
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // ビデオ再生
+            video.play()
+                .then(() => {
+                    console.log('Camera started successfully');
+                    // カメラ起動成功時にボタンを有効化
+                    captureButton.disabled = false;
+                })
+                .catch(e => {
+                    console.error('Video play error:', e);
+                    showError('カメラの起動に失敗しました。ブラウザの設定でカメラへのアクセスを許可してください。');
+                });
+        };
+        
+        // エラーハンドリング
+        video.onerror = function() {
+            showError('ビデオストリームの処理中にエラーが発生しました。');
+        };
+        
     } catch (error) {
-        console.error("カメラの起動に失敗:", error);
-        alert("カメラにアクセスできませんでした。設定を確認してください。");
+        console.error('Camera initialization error:', error);
+        showError('カメラの初期化に失敗しました。ブラウザの設定でカメラへのアクセスを許可してください。');
     }
 }
 
-// 📌 撮影処理（撮影後にダウンロード可能にする）
-captureBtn.addEventListener('click', () => {
-    const ctx = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+// エラーメッセージを表示する関数
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = 'block';
+    captureButton.disabled = true;
+}
 
-    // 撮影画像をダウンロード用に設定
-    canvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        downloadBtn.href = url;
-        downloadBtn.style.display = "block"; // ダウンロードボタンを表示
-    }, "image/jpeg");
+// 画面の向きが変わった時にカメラを再初期化
+window.addEventListener('orientationchange', function() {
+    // 少し遅延を入れてレイアウト変更完了後に実行
+    setTimeout(function() {
+        // カメラの再起動
+        stopCamera();
+        initCamera();
+    }, 500);
 });
 
-// 📌 カメラ起動
-window.addEventListener("load", startCamera);
+// カメラを停止する関数
+function stopCamera() {
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => {
+            track.stop();
+        });
+    }
+}
+
+// 撮影ボタンのクリックイベント
+captureButton.addEventListener('click', function() {
+    if (video.readyState === 4) { // HAVE_ENOUGH_DATA
+        // キャンバスにビデオフレームを描画
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // A4向けに高画質設定
+        const imageUrl = canvas.toDataURL('image/jpeg', 0.95); // 高画質設定
+        
+        // 画像をImg要素に設定
+        capturedImage.src = imageUrl;
+        capturedImage.style.display = 'block';
+        
+        // ダウンロードリンクを設定（日付を含むシンプルな名前）
+        const now = new Date();
+        const dateStr = now.getFullYear() + 
+                      ('0' + (now.getMonth() + 1)).slice(-2) + 
+                      ('0' + now.getDate()).slice(-2) + '-' + 
+                      ('0' + now.getHours()).slice(-2) + 
+                      ('0' + now.getMinutes()).slice(-2);
+        
+        downloadLink.href = imageUrl;
+        downloadLink.download = 'document-' + dateStr + '.jpg';
+        downloadLink.style.display = 'inline-block';
+        
+        // 撮影後のUIを表示
+        document.getElementById('captured-area').style.display = 'block';
+    } else {
+        console.warn('Video not ready yet');
+    }
+});
+
+// 新しい写真を撮るボタン
+document.getElementById('new-capture-button').addEventListener('click', function() {
+    // 撮影したイメージを非表示に
+    document.getElementById('captured-area').style.display = 'none';
+});
+
+// ページ読み込み完了時にカメラを初期化
+document.addEventListener('DOMContentLoaded', initCamera);
+
+// ページを離れる際にカメラを停止
+window.addEventListener('beforeunload', stopCamera);
