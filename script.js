@@ -16,13 +16,13 @@ async function initCamera() {
         // エラーメッセージを非表示に
         errorMessage.style.display = 'none';
         
-        // カメラ設定 - A4横向き撮影に最適化（16:9に近い解像度で高画質）
+        // カメラ設定 - 書類撮影に最適化（より高解像度で接写に対応）
         const constraints = {
             video: {
                 facingMode: 'environment', // リアカメラ優先
-                width: { ideal: 1920 },    // 高解像度に設定
-                height: { ideal: 1080 },
-                aspectRatio: { ideal: 16/9 } // A4横向きに最適なアスペクト比
+                width: { ideal: 3840 },    // 超高解像度に設定（4K）
+                height: { ideal: 2160 },
+                zoom: 2.0                  // デジタルズーム（対応デバイスのみ）
             }
         };
 
@@ -69,15 +69,36 @@ function showError(message) {
     captureButton.disabled = true;
 }
 
-// 画面の向きが変わった時にカメラを再初期化
-window.addEventListener('orientationchange', function() {
-    // 少し遅延を入れてレイアウト変更完了後に実行
-    setTimeout(function() {
-        // カメラの再起動
-        stopCamera();
-        initCamera();
-    }, 500);
+// 画面サイズに合わせてカメラ設定を調整する関数
+function updateCameraSettings() {
+    // カメラが起動していれば停止
+    stopCamera();
+    
+    // 少し遅延を入れてカメラを再起動
+    setTimeout(initCamera, 300);
+}
+
+// カメラ映像のズーム調整ボタン
+let currentZoom = 1.0;
+document.getElementById('zoom-in-button').addEventListener('click', function() {
+    currentZoom += 0.2;
+    if (currentZoom > 3) currentZoom = 3;
+    applyZoom();
 });
+
+document.getElementById('zoom-out-button').addEventListener('click', function() {
+    currentZoom -= 0.2;
+    if (currentZoom < 1) currentZoom = 1;
+    applyZoom();
+});
+
+// カメラのズームを適用
+function applyZoom() {
+    if (video.style.transform) {
+        video.style.transform = `scale(${currentZoom})`;
+    }
+    console.log(`Zoom level: ${currentZoom}`);
+}
 
 // カメラを停止する関数
 function stopCamera() {

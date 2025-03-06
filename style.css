@@ -35,7 +35,7 @@ body {
 .camera-container {
     width: 100%;
     position: relative;
-    overflow: hidden;
+    overflow: hidden; /* これが重要 - ズームしたときに内容が切れないようにする */
     border-radius: 8px;
     background-color: #000;
     margin-bottom: 15px;
@@ -45,22 +45,47 @@ body {
     width: 100%;
     height: auto;
     display: block;
-    transform: scaleX(1); /* ミラー効果が必要なら scaleX(-1) に変更 */
+    transform-origin: center; /* ズームの中心点 */
+    transform: scale(1);      /* ズーム用のベース値 */
     background-color: #222;
     border-radius: 8px;
     object-fit: cover;
-    aspect-ratio: 16/9; /* 横長の撮影に適したアスペクト比 */
+    aspect-ratio: 4/3;        /* 書類撮影に適したアスペクト比 */
 }
 
-/* シンプルなガイド枠 */
+/* ズームコントロール */
+.zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 30;
+}
+
+.zoom-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* シンプルなガイド枠 - 画面いっぱいに表示 */
 .camera-container::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 85%;
-    height: 70%; 
+    width: 94%;  /* より広い範囲をカバー */
+    height: 85%; /* より高い範囲をカバー */
     border: 2px dashed rgba(255, 255, 255, 0.7);
     border-radius: 4px;
     pointer-events: none;
