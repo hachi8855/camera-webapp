@@ -1,0 +1,138 @@
+/* 📌 全体のデザイン */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden; /* スクロールを防ぐ */
+}
+
+/* 📌 カメラ映像のコンテナ */
+.camera-container {
+    position: relative;
+    width: 90vw;
+    max-width: 600px;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 📌 カメラ映像 */
+video {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    border: 3px solid #ccc;
+    background: black;
+}
+
+/* 📌 枠線（ガイド） */
+#guide-frame {
+    position: absolute;
+    width: 90%;
+    height: 80%;
+    border: 4px solid rgba(255, 215, 0, 0.8); /* 黄色で視認性向上 */
+    border-radius: 10px;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* 📌 「上の向き」ガイド */
+#orientation-guide {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff5722;
+    margin-bottom: 10px;
+}
+
+/* 📌 ボタン共通デザイン */
+button {
+    display: block;
+    width: 80%;
+    max-width: 300px;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 10px auto;
+    transition: all 0.3s ease;
+}
+
+/* 📌 撮影ボタン */
+#capture {
+    background: #ff5722;
+    color: white;
+}
+
+#capture:hover {
+    background: #e64a19;
+    transform: scale(1.05);
+}
+
+/* 📌 ダウンロードボタン */
+#download {
+    background: #007bff;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    padding: 12px;
+    border-radius: 30px;
+    max-width: 300px;
+    font-size: 18px;
+    transition: background 0.3s ease;
+}
+
+#download:hover {
+    background: #0056b3;
+}
+
+/* 📌 メディアクエリでレスポンシブ対応 */
+@media (max-width: 768px) { /* タブレット・スマホ用 */
+    .camera-container {
+        width: 100%;
+    }
+    
+    #guide-frame {
+        width: 85%;
+        height: 75%;
+    }
+
+    button {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) { /* スマホ用 */
+    body {
+        padding: 10px;
+    }
+
+    .camera-container {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+    }
+
+    #guide-frame {
+        width: 80%;
+        height: 70%;
+        border: 3px solid rgba(255, 215, 0, 0.9);
+    }
+
+    #orientation-guide {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
